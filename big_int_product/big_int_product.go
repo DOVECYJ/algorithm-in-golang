@@ -13,14 +13,35 @@ func main() {
 	x := "991086334737101014141447823434124179111084831929311089596731075933473557543639836"
 	y := "73378335716510109111963597814326771110829569262663543213269127839633"
 	//fmt.Scanf("%s %s\n", &x, &y)
-	fmt.Println(x, y)
-	fmt.Println("[main]:", sproduct(x, y))
+	//fmt.Println(x, y)
+	fmt.Println("[product]:", sproduct(x, y))
 }
 
-func big_int_product(x, y string) string {
-	return sproduct(x, y)
+// 字符串表示的大整数乘法
+func sproduct(x, y string) string {
+	if len(x) < 10 && len(y) < 10 {
+		x_int, _ := strconv.Atoi(x)
+		y_int, _ := strconv.Atoi(y)
+		return fmt.Sprintf("%d", x_int*y_int)
+	}
+
+	halfn := max(len(x), len(y)) / 2
+	a, b := split_by_n(x, halfn)
+	c, d := split_by_n(y, halfn)
+
+	z2 := sproduct(a, c)                       //a×c
+	z0 := sproduct(b, d)                       //b×d
+	z1 := sadd(sproduct(a, d), sproduct(b, c)) //a×d+b×c
+
+	for i := 0; i < halfn; i++ {
+		z2 += "00"
+		z1 += "0"
+	}
+	//fmt.Println("[z-210]", z2, z1, z0)
+	return strings.TrimLeft(sadd(sadd(z2, z1), z0), "0")
 }
 
+//将x从中间切分成两部分
 func split(x string) (a, b string, halfn int) {
 	n := len(x)
 	halfn = n / 2
@@ -29,6 +50,7 @@ func split(x string) (a, b string, halfn int) {
 	return
 }
 
+// 将x按n切分成a、b两部分 x=a×10^n+b
 func split_by_n(x string, n int) (string, string) {
 	n = len(x) - n
 	if n <= 0 {
@@ -37,6 +59,7 @@ func split_by_n(x string, n int) (string, string) {
 	return x[0:n], x[n:]
 }
 
+// 字符串表示的正整数加法
 func sadd(x, y string) (sum string) {
 	/**
 	* 0~9 : 48 49 59 51 52 53 54 55 56 57
@@ -65,29 +88,6 @@ func sadd(x, y string) (sum string) {
 		sum = string(carry) + sum
 	}
 	return
-}
-
-func sproduct(x, y string) string {
-	if len(x) < 10 && len(y) < 10 {
-		x_int, _ := strconv.Atoi(x)
-		y_int, _ := strconv.Atoi(y)
-		return fmt.Sprintf("%d", x_int*y_int)
-	}
-
-	halfn := max(len(x), len(y)) / 2
-	a, b := split_by_n(x, halfn)
-	c, d := split_by_n(y, halfn)
-
-	z2 := sproduct(a, c)                       //a×c
-	z0 := sproduct(b, d)                       //b×d
-	z1 := sadd(sproduct(a, d), sproduct(b, c)) //a×d+b×c
-
-	for i := 0; i < halfn; i++ {
-		z2 += "00"
-		z1 += "0"
-	}
-	//fmt.Println("[z-210]", z2, z1, z0)
-	return strings.TrimLeft(sadd(sadd(z2, z1), z0), "0")
 }
 
 func max(a, b int) int {
